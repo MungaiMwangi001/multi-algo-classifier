@@ -1,0 +1,83 @@
+2025-09-04 08:08:57.544 | INFO     | app.main:root:27 - Root endpoint called
+2025-09-04 08:08:57.544 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:61101 - "GET / HTTP/1.1" 200
+2025-09-04 08:09:05.794 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:50060 - "OPTIONS /api/v1/train-all HTTP/1.1" 405
+2025-09-04 08:09:11.126 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:51781 - "GET /api/v1/dataset-info HTTP/1.1" 400
+2025-09-04 08:09:11.127 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:54905 - "GET /api/v1/list-models HTTP/1.1" 200
+2025-09-04 08:09:11.131 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:51781 - "GET /api/v1/dataset-info HTTP/1.1" 400
+2025-09-04 08:09:11.134 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:61403 - "GET /api/v1/list-models HTTP/1.1" 200
+2025-09-04 08:09:11.140 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:51781 - "GET /api/v1/dataset-info HTTP/1.1" 400
+2025-09-04 08:09:11.146 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:61403 - "GET /api/v1/list-models HTTP/1.1" 200
+2025-09-04 08:09:22.928 | DEBUG    | python_multipart.multipart:callback:628 - Calling on_part_begin with no data
+2025-09-04 08:09:22.929 | DEBUG    | python_multipart.multipart:callback:625 - Calling on_header_field with data[42:61]
+2025-09-04 08:09:22.929 | DEBUG    | python_multipart.multipart:callback:625 - Calling on_header_value with data[63:115]
+2025-09-04 08:09:22.929 | DEBUG    | python_multipart.multipart:callback:628 - Calling on_header_end with no data
+2025-09-04 08:09:22.929 | DEBUG    | python_multipart.multipart:callback:625 - Calling on_header_field with data[117:129]
+2025-09-04 08:09:22.930 | DEBUG    | python_multipart.multipart:callback:625 - Calling on_header_value with data[131:139]
+2025-09-04 08:09:22.930 | DEBUG    | python_multipart.multipart:callback:628 - Calling on_header_end with no data
+2025-09-04 08:09:22.930 | DEBUG    | python_multipart.multipart:callback:628 - Calling on_headers_finished with no data
+2025-09-04 08:09:22.931 | DEBUG    | python_multipart.multipart:callback:625 - Calling on_part_data with data[143:49152]
+2025-09-04 08:09:22.931 | DEBUG    | python_multipart.multipart:callback:625 - Calling on_part_data with data[0:1905]
+2025-09-04 08:09:22.932 | DEBUG    | python_multipart.multipart:callback:628 - Calling on_part_end with no data
+2025-09-04 08:09:22.932 | DEBUG    | python_multipart.multipart:callback:628 - Calling on_end with no data
+2025-09-04 08:09:22.937 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:51890 - "POST /api/v1/upload-dataset HTTP/1.1" 200
+2025-09-04 08:09:37.571 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:64815 - "GET /api/v1/list-models HTTP/1.1" 200
+2025-09-04 08:10:21.703 | INFO     | app.main:root:27 - Root endpoint called
+2025-09-04 08:10:21.706 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:56387 - "GET / HTTP/1.1" 200
+2025-09-04 08:10:32.846 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:63894 - "GET /api/v1/list-models HTTP/1.1" 200
+2025-09-04 08:10:32.847 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:58927 - "GET /api/v1/dataset-info HTTP/1.1" 400
+2025-09-04 08:10:32.853 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:63894 - "GET /api/v1/list-models HTTP/1.1" 200
+2025-09-04 08:10:32.867 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:59032 - "GET /api/v1/dataset-info HTTP/1.1" 400
+2025-09-04 08:10:32.869 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:58927 - "GET /api/v1/list-models HTTP/1.1" 200
+2025-09-04 08:10:32.871 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:59032 - "GET /api/v1/dataset-info HTTP/1.1" 400
+2025-09-04 08:11:13.259 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:62023 - "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404
+2025-09-04 08:11:31.092 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:57022 - "GET /api/v1/list-models HTTP/1.1" 200
+2025-09-04 08:11:32.993 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:57022 - "OPTIONS /api/v1/train-all HTTP/1.1" 405
+2025-09-04 08:11:34.813 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:57022 - "GET /api/v1/dataset-info HTTP/1.1" 400
+2025-09-04 08:12:00.773 | DEBUG    | python_multipart.multipart:callback:628 - Calling on_part_begin with no data
+2025-09-04 08:12:00.773 | DEBUG    | python_multipart.multipart:callback:625 - Calling on_header_field with data[42:61]
+2025-09-04 08:12:00.774 | DEBUG    | python_multipart.multipart:callback:625 - Calling on_header_value with data[63:115]
+2025-09-04 08:12:00.774 | DEBUG    | python_multipart.multipart:callback:628 - Calling on_header_end with no data
+2025-09-04 08:12:00.774 | DEBUG    | python_multipart.multipart:callback:625 - Calling on_header_field with data[117:129]
+2025-09-04 08:12:00.774 | DEBUG    | python_multipart.multipart:callback:625 - Calling on_header_value with data[131:139]
+2025-09-04 08:12:00.775 | DEBUG    | python_multipart.multipart:callback:628 - Calling on_header_end with no data
+2025-09-04 08:12:00.775 | DEBUG    | python_multipart.multipart:callback:628 - Calling on_headers_finished with no data
+2025-09-04 08:12:00.775 | DEBUG    | python_multipart.multipart:callback:625 - Calling on_part_data with data[143:51057]
+2025-09-04 08:12:00.776 | DEBUG    | python_multipart.multipart:callback:628 - Calling on_part_end with no data
+2025-09-04 08:12:00.776 | DEBUG    | python_multipart.multipart:callback:628 - Calling on_end with no data
+2025-09-04 08:12:00.783 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:54257 - "POST /api/v1/upload-dataset HTTP/1.1" 200
+2025-09-04 08:19:39.278 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:59159 - "GET /api/v1/dataset-info HTTP/1.1" 400
+2025-09-04 08:19:39.280 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:53345 - "GET /api/v1/list-models HTTP/1.1" 200
+2025-09-04 08:19:39.282 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:65329 - "GET /api/v1/dataset-info HTTP/1.1" 400
+2025-09-04 08:19:39.285 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:59159 - "GET /api/v1/list-models HTTP/1.1" 200
+2025-09-04 08:22:20.972 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:64491 - "GET /api/v1/dataset-info HTTP/1.1" 400
+2025-09-04 08:22:20.973 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:53599 - "GET /api/v1/list-models HTTP/1.1" 200
+2025-09-04 08:22:20.980 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:64096 - "GET /api/v1/dataset-info HTTP/1.1" 400
+2025-09-04 08:22:20.982 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:64491 - "GET /api/v1/list-models HTTP/1.1" 200
+2025-09-04 08:22:34.470 | DEBUG    | python_multipart.multipart:callback:628 - Calling on_part_begin with no data
+2025-09-04 08:22:34.471 | DEBUG    | python_multipart.multipart:callback:625 - Calling on_header_field with data[42:61]
+2025-09-04 08:22:34.471 | DEBUG    | python_multipart.multipart:callback:625 - Calling on_header_value with data[63:115]
+2025-09-04 08:22:34.471 | DEBUG    | python_multipart.multipart:callback:628 - Calling on_header_end with no data
+2025-09-04 08:22:34.472 | DEBUG    | python_multipart.multipart:callback:625 - Calling on_header_field with data[117:129]
+2025-09-04 08:22:34.472 | DEBUG    | python_multipart.multipart:callback:625 - Calling on_header_value with data[131:139]
+2025-09-04 08:22:34.472 | DEBUG    | python_multipart.multipart:callback:628 - Calling on_header_end with no data
+2025-09-04 08:22:34.473 | DEBUG    | python_multipart.multipart:callback:628 - Calling on_headers_finished with no data
+2025-09-04 08:22:34.473 | DEBUG    | python_multipart.multipart:callback:625 - Calling on_part_data with data[143:49152]
+2025-09-04 08:22:34.474 | DEBUG    | python_multipart.multipart:callback:625 - Calling on_part_data with data[0:1905]
+2025-09-04 08:22:34.474 | DEBUG    | python_multipart.multipart:callback:628 - Calling on_part_end with no data
+2025-09-04 08:22:34.474 | DEBUG    | python_multipart.multipart:callback:628 - Calling on_end with no data
+2025-09-04 08:22:34.480 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:55742 - "POST /api/v1/upload-dataset HTTP/1.1" 200
+2025-09-04 08:22:34.518 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:55742 - "GET /api/v1/dataset-info HTTP/1.1" 500
+2025-09-04 08:22:43.428 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:63456 - "OPTIONS /api/v1/train HTTP/1.1" 200
+2025-09-04 08:22:43.444 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:63456 - "POST /api/v1/train HTTP/1.1" 500
+2025-09-04 08:22:47.194 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:63456 - "OPTIONS /api/v1/train-all HTTP/1.1" 200
+2025-09-04 08:22:47.206 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:63456 - "POST /api/v1/train-all HTTP/1.1" 500
+2025-09-04 08:22:55.504 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:61350 - "GET /api/v1/list-models HTTP/1.1" 200
+2025-09-04 08:22:57.788 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:61350 - "POST /api/v1/train-all HTTP/1.1" 500
+2025-09-04 08:30:30.602 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:51461 - "GET /api/v1/dataset-info HTTP/1.1" 400
+2025-09-04 08:30:30.604 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:56361 - "GET /api/v1/list-models HTTP/1.1" 200
+2025-09-04 08:30:30.615 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:51461 - "GET /api/v1/dataset-info HTTP/1.1" 400
+2025-09-04 08:30:30.630 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:56361 - "GET /api/v1/list-models HTTP/1.1" 200
+2025-09-04 08:30:44.243 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:52092 - "GET /api/v1/dataset-info HTTP/1.1" 400
+2025-09-04 08:30:44.244 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:61383 - "GET /api/v1/list-models HTTP/1.1" 200
+2025-09-04 08:30:44.246 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:63882 - "GET /api/v1/dataset-info HTTP/1.1" 400
+2025-09-04 08:30:44.252 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:52092 - "GET /api/v1/list-models HTTP/1.1" 200

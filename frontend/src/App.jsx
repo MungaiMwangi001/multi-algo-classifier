@@ -1,100 +1,144 @@
-import React, { useState, useEffect } from "react";
-import Sidebar from "./components/Sidebar";
-import MainContent from "./components/MainContent";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { fadeIn } from "./constants/animations";
-import { algorithms } from "./constants/algorithms";
-import useApi from "./hooks/useApi";
-import useDataset from "./hooks/useDataset";
+// src/App.jsx
+import React, { useEffect, useState } from "react";
+import {
+  uploadDatasetApi,
+  fetchDatasetInfoApi,
+  trainModelApi,
+  trainAllModelsApi,
+  saveModelApi,
+  fetchSavedModelsApi,
+  predictApi,
+} from "./services/api";
 
-function App() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [activeTab, setActiveTab] = useState("dataset");
-  const [algorithm, setAlgorithm] = useState(algorithms[0]);
-  const [testSize, setTestSize] = useState(0.2);
-  const [normalize, setNormalize] = useState(false);
-  const [crossValidation, setCrossValidation] = useState(false);
+const App = () => {
+  const [datasetInfo, setDatasetInfo] = useState(null);
+  const [previewData, setPreviewData] = useState(null);
+  const [file, setFile] = useState(null);
+  const [targetColumn, setTargetColumn] = useState("");
+  const [savedModels, setSavedModels] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const {
-    trainResult,
-    allResults,
-    savedModels,
-    selectedModel,
-    predictionInput,
-    predictionResult,
-    fetchSavedModels,
-    saveModel,
-    trainAlgorithm,
-    trainAll,
-    setSelectedModel,
-    setPredictionInput,
-    makePrediction,
-    loading,
-  } = useApi();
+  // ✅ load dataset info
+  const fetchDatasetInfo = async () => {
+    try {
+      const response = await fetchDatasetInfoApi();
+      setDatasetInfo(response.data);
+    } catch (err) {
+      console.error("Error fetching dataset info:", err);
+    }
+  };
 
-  const {
-    datasetInfo,
-    file,
-    previewData,
-    targetColumn,
-    handleFileChange,
-    handleUpload,
-    fetchDatasetInfo,
-    setTargetColumn,
-  } = useDataset();
+  // ✅ load saved models
+  const fetchModels = async () => {
+    try {
+      const response = await fetchSavedModelsApi();
+      setSavedModels(response.data);
+    } catch (err) {
+      console.error("Error fetching saved models:", err);
+    }
+  };
+
+  // ✅ file preview handler
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0];
+    setFile(selectedFile);
+
+    if (selectedFile) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target.result;
+        const rows = text.split("\n").slice(0, 11); // preview first 10 rows
+        setPreviewData(rows.map((row) => row.split(",")));
+      };
+      reader.readAsText(selectedFile);
+    }
+  };
+
+  // ✅ upload dataset
+  const handleUpload = async () => {
+    if (!file) return alert("Please select a file first.");
+
+    setLoading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("target_column", targetColumn);
+
+    try {
+      await uploadDatasetApi(formData);
+      await fetchDatasetInfo(); // refresh info after upload
+      alert("Dataset uploaded successfully!");
+    } catch (err) {
+      console.error("Error uploading dataset:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    fetchSavedModels();
     fetchDatasetInfo();
+    fetchModels();
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <ToastContainer position="top-right" autoClose={3000} />
-      <Sidebar
-        isSidebarOpen={isSidebarOpen}
-        setIsSidebarOpen={setIsSidebarOpen}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        trainAll={trainAll}
-        fetchDatasetInfo={fetchDatasetInfo}
-        loading={loading}
-      />
-      <MainContent
-        isSidebarOpen={isSidebarOpen}
-        activeTab={activeTab}
-        datasetInfo={datasetInfo}
-        file={file}
-        previewData={previewData}
-        targetColumn={targetColumn}
-        setTargetColumn={setTargetColumn}
-        handleFileChange={handleFileChange}
-        handleUpload={handleUpload}
-        algorithm={algorithm}
-        setAlgorithm={setAlgorithm}
-        testSize={testSize}
-        setTestSize={setTestSize}
-        normalize={normalize}
-        setNormalize={setNormalize}
-        crossValidation={crossValidation}
-        setCrossValidation={setCrossValidation}
-        trainResult={trainResult}
-        allResults={allResults}
-        savedModels={savedModels}
-        selectedModel={selectedModel}
-        setSelectedModel={setSelectedModel}
-        predictionInput={predictionInput}
-        setPredictionInput={setPredictionInput}
-        predictionResult={predictionResult}
-        trainAlgorithm={trainAlgorithm}
-        trainAll={trainAll}
-        saveModel={saveModel}
-        makePrediction={makePrediction}
-        loading={loading}
-      />
+    <div style={{ padding: "20px" }}>
+      <h1>ML Pipeline Dashboard</h1>
+
+      {/* Dataset upload */}
+      <section>
+        <h2>Upload Dataset</h2>
+        <input type="file" accept=".csv" onChange={handleFileChange} />
+        <input
+          type="text"
+          placeholder="Target Column"
+          value={targetColumn}
+          onChange={(e) => setTargetColumn(e.target.value)}
+        />
+        <button onClick={handleUpload} disabled={loading}>
+          {loading ? "Uploading..." : "Upload"}
+        </button>
+      </section>
+
+      {/* Preview */}
+      {previewData && (
+        <section>
+          <h2>Dataset Preview</h2>
+          <table border="1">
+            <tbody>
+              {previewData.map((row, i) => (
+                <tr key={i}>
+                  {row.map((cell, j) => (
+                    <td key={j}>{cell}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      )}
+
+      {/* Dataset info */}
+      {datasetInfo && (
+        <section>
+          <h2>Dataset Info</h2>
+          <pre>{JSON.stringify(datasetInfo, null, 2)}</pre>
+        </section>
+      )}
+
+      {/* Saved models */}
+      <section>
+        <h2>Saved Models</h2>
+        {savedModels.length === 0 ? (
+          <p>No models saved yet.</p>
+        ) : (
+          <ul>
+            {savedModels.map((model, idx) => (
+              <li key={idx}>{model}</li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
-}
+};
 
 export default App;

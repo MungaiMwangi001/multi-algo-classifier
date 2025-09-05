@@ -25,7 +25,7 @@ class EncodingMethod(str, Enum):
 
 class TrainRequest(BaseModel):
     algorithm: AlgorithmName
-    test_size: confloat(gt=0, lt=1) = Field(0.2, description="Proportion of dataset to include in test split")
+    test_size: confloat (gt=0, lt=1) = Field(0.2, description="Proportion of dataset to include in test split") # type: ignore
     random_state: int = Field(42, description="Random state for reproducibility")
     cv_folds: int = Field(5, description="Number of cross-validation folds")
     preprocessing: PreprocessingMethod = Field(PreprocessingMethod.STANDARD, description="Preprocessing method")

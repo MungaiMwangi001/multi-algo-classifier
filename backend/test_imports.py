@@ -17,3 +17,6 @@ try:
     print("All imports successful!")
 except ImportError as e:
     print(f"Import error: {e}")
+
+# run this script to verify that all necessary packages are installed correctly.
+# using: python test_imports.py

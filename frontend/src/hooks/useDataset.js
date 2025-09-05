@@ -1,38 +1,54 @@
-import { useState } from 'react';
-import { uploadDataset, getDatasetInfo } from '../services/api';
+import { useState } from "react";
+import  useApi from "./useApi";
+import { uploadDatasetApi, fetchDatasetInfoApi } from "../services/api";
 
+/**
+ * useDataset - handles dataset upload, preview, and info fetching
+ */
 export const useDataset = () => {
   const [datasetInfo, setDatasetInfo] = useState(null);
   const [previewData, setPreviewData] = useState(null);
+  const [file, setFile] = useState(null);
 
+  const { loading, error, callApi } = useApi();
+
+  /**
+   * Fetch dataset info from backend
+   */
   const fetchDatasetInfo = async () => {
-    try {
-      const data = await getDatasetInfo();
-      setDatasetInfo(data);
-    } catch (error) {
-      console.error("Error fetching dataset info:", error);
-    }
+    const data = await callApi(fetchDatasetInfoApi);
+    if (data) setDatasetInfo(data);
   };
 
+  /**
+   * Handle file selection & generate preview
+   */
   const handleFileChange = (file) => {
     setFile(file);
-    
+
     if (file) {
       const reader = new FileReader();
       reader.onload = (event) => {
         const text = event.target.result;
-        const rows = text.split('\n').slice(0, 11);
-        setPreviewData(rows.map(row => row.split(',')));
+        const rows = text.split("\n").slice(0, 11); // Preview first 10 rows
+        setPreviewData(rows.map((row) => row.split(",")));
       };
       reader.readAsText(file);
     }
   };
 
-  const handleUpload = async (file, targetColumn) => {
+  /**
+   * Upload dataset file and fetch dataset info
+   */
+  const handleUpload = async (targetColumn) => {
     if (!file) return false;
 
     try {
-      await uploadDataset(file, targetColumn);
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("target_column", targetColumn);
+
+      await callApi(uploadDatasetApi, formData);
       await fetchDatasetInfo();
       return true;
     } catch (error) {
@@ -44,8 +60,11 @@ export const useDataset = () => {
   return {
     datasetInfo,
     previewData,
+    file,
+    loading,
+    error,
     fetchDatasetInfo,
     handleFileChange,
-    handleUpload
+    handleUpload,
   };
 };

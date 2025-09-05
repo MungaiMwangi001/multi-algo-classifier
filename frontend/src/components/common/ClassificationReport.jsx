@@ -40,3 +40,4 @@ const ClassificationReport = ({ report }) => {
 };
 
 export default ClassificationReport;
+

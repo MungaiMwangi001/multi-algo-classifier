@@ -81,3 +81,15 @@
 2025-09-04 08:30:44.244 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:61383 - "GET /api/v1/list-models HTTP/1.1" 200
 2025-09-04 08:30:44.246 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:63882 - "GET /api/v1/dataset-info HTTP/1.1" 400
 2025-09-04 08:30:44.252 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:52092 - "GET /api/v1/list-models HTTP/1.1" 200
+2025-09-04 22:32:31.980 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:57715 - "GET /docs?utm_source=chatgpt.com HTTP/1.1" 404
+2025-09-04 22:32:32.069 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:57715 - "GET /favicon.ico HTTP/1.1" 404
+2025-09-04 22:32:36.927 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:57715 - "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404
+2025-09-04 22:32:52.896 | INFO     | app.main:root:36 - Root endpoint called
+2025-09-04 22:32:52.897 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:52424 - "GET / HTTP/1.1" 200
+2025-09-04 22:33:01.555 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:52746 - "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404
+2025-09-04 22:33:18.503 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:64063 - "GET /docs?utm_source=chatgpt.com HTTP/1.1" 404
+2025-09-04 22:33:18.524 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:64063 - "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404
+2025-09-04 22:33:20.322 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:64063 - "GET /docs?utm_source=chatgpt.com HTTP/1.1" 404
+2025-09-04 22:33:20.341 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:64063 - "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404
+2025-09-04 22:33:29.505 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:57689 - "GET /docs?utm_source=chatgpt.com HTTP/1.1" 404
+2025-09-04 22:33:29.527 | INFO     | uvicorn.protocols.http.httptools_impl:send:476 - 127.0.0.1:57689 - "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404

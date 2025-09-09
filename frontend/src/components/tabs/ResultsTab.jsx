@@ -1,105 +1,70 @@
-import React from "react";
-import { Bar, Scatter } from "react-chartjs-2";
-import ClassificationReport from "../common/ClassificationReport";
-import { getConfusionMatrixData, getRocCurveData, getFeatureImportanceData } from "../charts/chartUtils";
+import React from 'react';
+import { useDataset } from '../../hooks/useDataset';
+import AccuracyChart from '../charts/AccuracyChart';
+import ClassificationReport from '../common/ClassificationReport';
 
-const ResultsTab = ({ trainResult, algorithm }) => {
-  if (!trainResult) return null;
+const ResultsTab = () => {
+  const { trainingResults } = useDataset();
+
+  if (!trainingResults) {
+    return (
+      <div className="p-6">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Results</h2>
+        <div className="bg-white rounded-xl shadow-md p-6 text-center">
+          <p className="text-gray-600">No results yet. Train a model first.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">Training Results - {algorithm}</h2>
+    <div className="p-6">
+      <h2 className="text-2xl font-semibold text-gray-800 mb-4">Results</h2>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <AccuracyChart data={trainingResults} />
+        
+        <div className="bg-white p-4 rounded-lg shadow">
+          <h3 className="text-lg font-medium mb-4">Best Performing Algorithm</h3>
+          {trainingResults.length > 0 && (
+            <div className="text-center">
+              <div className="text-3xl font-bold text-indigo-600 mb-2">
+                {trainingResults.reduce((best, current) => 
+                  (current.accuracy > best.accuracy) ? current : best
+                ).algorithm}
+              </div>
+              <p className="text-gray-600">with accuracy of {(trainingResults.reduce((best, current) => 
+                (current.accuracy > best.accuracy) ? current : best
+              ).accuracy * 100).toFixed(2)}%</p>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Metrics Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white p-4 rounded-lg shadow border-l-4 border-indigo-500">
-          <div className="text-sm text-gray-500">Accuracy</div>
-          <div className="text-2xl font-bold text-indigo-600">
-            {(trainResult.accuracy * 100).toFixed(2)}%
+      {trainingResults.map((result, index) => (
+        <div key={index} className="bg-white rounded-xl shadow-md p-6 mb-6">
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">{result.algorithm}</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <h4 className="text-sm font-medium text-blue-800">Accuracy</h4>
+              <p className="text-2xl font-bold text-blue-600">{(result.accuracy * 100).toFixed(2)}%</p>
+            </div>
+            
+            <div className="bg-green-50 p-4 rounded-lg">
+              <h4 className="text-sm font-medium text-green-800">Precision</h4>
+              <p className="text-2xl font-bold text-green-600">{result.precision?.toFixed(2)}</p>
+            </div>
+            
+            <div className="bg-purple-50 p-4 rounded-lg">
+              <h4 className="text-sm font-medium text-purple-800">Recall</h4>
+              <p className="text-2xl font-bold text-purple-600">{result.recall?.toFixed(2)}</p>
+            </div>
           </div>
+          
+          <ClassificationReport report={result.classification_report} />
         </div>
-        <div className="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
-          <div className="text-sm text-gray-500">Precision</div>
-          <div className="text-2xl font-bold text-green-600">{trainResult.precision.toFixed(3)}</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
-          <div className="text-sm text-gray-500">Recall</div>
-          <div className="text-2xl font-bold text-blue-600">{trainResult.recall.toFixed(3)}</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow border-l-4 border-purple-500">
-          <div className="text-sm text-gray-500">F1-Score</div>
-          <div className="text-2xl font-bold text-purple-600">{trainResult.f1_score.toFixed(3)}</div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        {/* Confusion Matrix */}
-        <div className="bg-gray-50 p-6 rounded-lg">
-          <h3 className="text-lg font-medium text-gray-800 mb-4">Confusion Matrix</h3>
-          {trainResult.confusion_matrix && (
-            <Bar
-              data={getConfusionMatrixData(trainResult.confusion_matrix, algorithm)}
-              options={{
-                responsive: true,
-                plugins: {
-                  legend: { position: "top" },
-                  title: { display: true, text: "Confusion Matrix" },
-                },
-              }}
-            />
-          )}
-        </div>
-
-        {/* ROC Curve */}
-        <div className="bg-gray-50 p-6 rounded-lg">
-          <h3 className="text-lg font-medium text-gray-800 mb-4">ROC Curve</h3>
-          {trainResult.roc_curve && (
-            <Scatter
-              data={getRocCurveData(trainResult.roc_curve)}
-              options={{
-                responsive: true,
-                scales: {
-                  x: { title: { display: true, text: "False Positive Rate" }, min: 0, max: 1 },
-                  y: { title: { display: true, text: "True Positive Rate" }, min: 0, max: 1 },
-                },
-                plugins: {
-                  legend: { position: "top" },
-                  title: {
-                    display: true,
-                    text: `ROC Curve (AUC = ${trainResult.auc?.toFixed(3) || "N/A"})`,
-                  },
-                },
-              }}
-            />
-          )}
-        </div>
-      </div>
-
-      {/* Feature Importance */}
-      {trainResult.feature_importance && (
-        <div className="bg-gray-50 p-6 rounded-lg mb-8">
-          <h3 className="text-lg font-medium text-gray-800 mb-4">Feature Importance</h3>
-          <Bar
-            data={getFeatureImportanceData(trainResult.feature_importance)}
-            options={{
-              indexAxis: "y",
-              responsive: true,
-              plugins: {
-                legend: { position: "top" },
-                title: { display: true, text: "Feature Importance" },
-              },
-            }}
-          />
-        </div>
-      )}
-
-      {/* Classification Report */}
-      <div className="bg-gray-50 p-6 rounded-lg">
-        <h3 className="text-lg font-medium text-gray-800 mb-4">Classification Report</h3>
-        <ClassificationReport report={trainResult.classification_report} />
-      </div>
+      ))}
     </div>
   );
 };

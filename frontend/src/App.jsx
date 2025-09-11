@@ -1,5 +1,5 @@
-// src/App.jsx
 import React, { useEffect, useState } from "react";
+import Sidebar from "./components/Sidebar";
 import {
   uploadDatasetApi,
   fetchDatasetInfoApi,
@@ -80,8 +80,9 @@ const App = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6 flex">
+      {/* Main Content */}
+      <div className="flex-1 max-w-6xl mx-auto mr-6">
         <header className="text-center py-8">
           <h1 className="text-4xl font-bold text-indigo-800 mb-2">ML Pipeline Dashboard</h1>
           <p className="text-gray-600">Upload, analyze, and train models on your datasets</p>
@@ -175,6 +176,11 @@ const App = () => {
             </ul>
           )}
         </section>
+      </div>
+      
+      {/* Sidebar */}
+      <div className="w-80">
+        <Sidebar/>
       </div>
     </div>
   );

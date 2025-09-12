@@ -1,191 +1,295 @@
-from fastapi import APIRouter, HTTPException, BackgroundTasks
-from sklearn.model_selection import train_test_split
-import time
-import uuid
+"""Training job management API endpoints."""
 
-from app.schemas.training import TrainRequest, AlgorithmResponse
-from app.ml.preprocessing import preprocess_data
-from app.ml.train import train_model
+import asyncio
+from datetime import datetime
+from typing import List, Optional
 
-router = APIRouter()
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
+from sqlalchemy.orm import Session
 
-# Global model storage
-models = {}
+from ..core.database import get_db, TrainingJob, Dataset
+from ..core.logging import get_logger
+from ..ml.preprocessing import DataPreprocessor
+from ..ml.training import MLTrainer
+from ..ml.persistence import TrainingJobPersistence, ModelPersistence, DatasetPersistence
+from ..schemas.training import (
+    TrainingRequest,
+    TrainingJob as TrainingJobSchema,
+    TrainingJobCreate,
+    TrainingJobUpdate,
+    TrainingStatus
+)
+from ..schemas.common import SuccessResponse
 
-@router.post("/train", response_model=AlgorithmResponse)
-def train_algorithm(request: TrainRequest):
-    """Train a machine learning model"""
+router = APIRouter(prefix="/training", tags=["training"])
+logger = get_logger(__name__)
+training_persistence = TrainingJobPersistence()
+model_persistence = ModelPersistence()
+dataset_persistence = DatasetPersistence()
+preprocessor = DataPreprocessor()
+ml_trainer = MLTrainer()
+
+
+@router.post("/start", response_model=TrainingJobSchema)
+async def start_training(
+    request: TrainingRequest,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db)
+):
+    """Start a new training job."""
     try:
-        from app.api.datasets import datasets, active_dataset_id
+        # Validate dataset exists
+        dataset = dataset_persistence.get_dataset(db, request.dataset_id)
+        if not dataset:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Dataset not found"
+            )
         
-        if active_dataset_id is None:
-            raise HTTPException(status_code=400, detail="No active dataset")
+        # Validate algorithm
+        if request.algorithm not in ml_trainer.get_available_algorithms():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Unsupported algorithm: {request.algorithm}"
+            )
         
-        dataset = datasets[active_dataset_id]
-        X = dataset["data"]
-        y = dataset["target"]
-        
-        # Preprocess data
-        X_processed, y_processed, preprocessor, target_names = preprocess_data(
-            X, y, request.preprocessing, request.encoding
+        # Create training job
+        job_id = training_persistence.generate_job_id()
+        job = training_persistence.create_training_job(
+            db=db,
+            job_id=job_id,
+            dataset_id=request.dataset_id,
+            algorithm=request.algorithm
         )
         
-        # Split data
-        X_train, X_test, y_train, y_test = train_test_split(
-            X_processed, y_processed, 
-            test_size=request.test_size, 
-            random_state=request.random_state, 
-            stratify=y_processed
+        # Start training in background
+        background_tasks.add_task(
+            run_training_job,
+            job_id=job_id,
+            dataset_id=request.dataset_id,
+            algorithm=request.algorithm,
+            params=request.params,
+            test_size=request.test_size,
+            random_state=request.random_state
+        )
+        
+        logger.info(f"Training job started: {job_id}")
+        return job
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error starting training job: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to start training job"
+        )
+
+
+@router.get("/status", response_model=TrainingStatus)
+async def get_training_status(
+    job_id: str,
+    db: Session = Depends(get_db)
+):
+    """Get training job status."""
+    try:
+        job = training_persistence.get_training_job(db, job_id)
+        if not job:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Training job not found"
+            )
+        
+        # Parse logs if available
+        logs = None
+        if job.logs:
+            logs = job.logs.split('\n')
+        
+        return TrainingStatus(
+            job_id=job.job_id,
+            status=job.status,
+            progress=job.progress,
+            logs=logs,
+            created_at=job.created_at,
+            updated_at=job.updated_at,
+            completed_at=job.completed_at,
+            error_message=job.error_message,
+            model_id=job.model_id
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting training status {job_id}: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve training status"
+        )
+
+
+@router.get("/jobs", response_model=List[TrainingJobSchema])
+async def get_training_jobs(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db)
+):
+    """Get all training jobs."""
+    try:
+        jobs = training_persistence.get_training_jobs(db, skip=skip, limit=limit)
+        return jobs
+    except Exception as e:
+        logger.error(f"Error getting training jobs: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve training jobs"
+        )
+
+
+@router.delete("/jobs/{job_id}", response_model=SuccessResponse)
+async def cancel_training_job(
+    job_id: str,
+    db: Session = Depends(get_db)
+):
+    """Cancel a training job."""
+    try:
+        job = training_persistence.get_training_job(db, job_id)
+        if not job:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Training job not found"
+            )
+        
+        if job.status in ["finished", "failed"]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot cancel completed job"
+            )
+        
+        # Update job status
+        training_persistence.update_training_job(
+            db=db,
+            job_id=job_id,
+            status="cancelled",
+            error_message="Job cancelled by user"
+        )
+        
+        logger.info(f"Training job cancelled: {job_id}")
+        return SuccessResponse(message="Training job cancelled successfully")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error cancelling training job {job_id}: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to cancel training job"
+        )
+
+
+async def run_training_job(
+    job_id: str,
+    dataset_id: str,
+    algorithm: str,
+    params: Optional[dict],
+    test_size: float,
+    random_state: int
+):
+    """Run training job in background."""
+    from ..core.database import SessionLocal
+    
+    db = SessionLocal()
+    try:
+        # Update job status to running
+        training_persistence.update_training_job(
+            db=db,
+            job_id=job_id,
+            status="running",
+            progress=10
+        )
+        
+        # Get dataset
+        dataset = dataset_persistence.get_dataset(db, dataset_id)
+        if not dataset:
+            raise Exception("Dataset not found")
+        
+        # Load and preprocess data
+        df = preprocessor.load_dataset(dataset.file_path)
+        df_clean = preprocessor.clean_dataset(df)
+        
+        # Prepare features
+        X, y = preprocessor.prepare_features(df_clean, dataset.target_column)
+        
+        if y is None:
+            raise Exception("No target column specified")
+        
+        # Update progress
+        training_persistence.update_training_job(
+            db=db,
+            job_id=job_id,
+            progress=30
         )
         
         # Train model
-        start_time = time.time()
-        result = train_model(
-            request.algorithm, X_train, X_test, y_train, y_test, 
-            target_names, request.cv_folds, dataset["feature_names"]
+        results = ml_trainer.train_model(
+            X=X,
+            y=y,
+            algorithm=algorithm,
+            params=params,
+            test_size=test_size,
+            random_state=random_state
         )
-        training_time = time.time() - start_time
         
-        # Create model ID
-        model_id = str(uuid.uuid4())
+        # Update progress
+        training_persistence.update_training_job(
+            db=db,
+            job_id=job_id,
+            progress=80
+        )
         
-        # Store model
-        models[model_id] = {
-            "model": result["model"],
-            "algorithm": request.algorithm,
-            "dataset_id": active_dataset_id,
-            "training_time": training_time,
-            "metrics": {
-                "accuracy": result["accuracy"],
-                "precision": result["precision"],
-                "recall": result["recall"],
-                "f1_score": result["f1_score"],
-                "auc": result["auc"],
-                "classification_report": result["classification_report"],
-                "confusion_matrix": result["confusion_matrix"],
-                "roc_curve": result["roc_curve"],
-                "pr_curve": result["pr_curve"],
-                "feature_importance": result["feature_importance"]
-            },
-            "preprocessor": preprocessor,
-            "target_names": target_names,
-            "feature_names": dataset["feature_names"]
-        }
+        # Save model
+        model_id = model_persistence.generate_model_id()
+        model_path = ml_trainer.save_model(
+            model=results["model"],
+            scaler=results["scaler"],
+            label_encoder=results["label_encoder"],
+            model_id=model_id,
+            algorithm=algorithm,
+            dataset_id=dataset_id,
+            accuracy=results["accuracy"],
+            metrics=results,
+            params=params or {}
+        )
         
-        return {
-            "name": request.algorithm.value,
-            "accuracy": result["accuracy"],
-            "precision": result["precision"],
-            "recall": result["recall"],
-            "f1_score": result["f1_score"],
-            "auc": result["auc"],
-            "roc_curve": result["roc_curve"],
-            "pr_curve": result["pr_curve"],
-            "confusion_matrix": result["confusion_matrix"],
-            "feature_importance": result["feature_importance"],
-            "cv_mean": result["cv_mean"],
-            "cv_std": result["cv_std"]
-        }
-    
-    except HTTPException:
-        raise
+        # Save model metadata
+        model_persistence.save_model_metadata(
+            db=db,
+            model_id=model_id,
+            algorithm=algorithm,
+            dataset_id=dataset_id,
+            accuracy=results["accuracy"],
+            model_path=model_path,
+            params=params or {},
+            metrics=results
+        )
+        
+        # Update job status to finished
+        training_persistence.update_training_job(
+            db=db,
+            job_id=job_id,
+            status="finished",
+            progress=100,
+            model_id=model_id
+        )
+        
+        logger.info(f"Training job completed successfully: {job_id}")
+        
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error training model: {str(e)}")
-
-@router.post("/train-all", response_model=dict)
-def train_all_algorithms(
-    test_size: float = 0.2,
-    random_state: int = 42,
-    cv_folds: int = 5,
-    preprocessing: str = "standard",
-    encoding: str = "label"
-):
-    """Train all available algorithms and return results"""
-    try:
-        from app.api.datasets import datasets, active_dataset_id
-        from app.schemas.training import PreprocessingMethod, EncodingMethod, AlgorithmName
-        
-        if active_dataset_id is None:
-            raise HTTPException(status_code=400, detail="No active dataset")
-        
-        dataset = datasets[active_dataset_id]
-        X = dataset["data"]
-        y = dataset["target"]
-        
-        # Preprocess data
-        X_processed, y_processed, preprocessor, target_names = preprocess_data(
-            X, y, PreprocessingMethod(preprocessing), EncodingMethod(encoding)
+        logger.error(f"Training job failed {job_id}: {str(e)}")
+        training_persistence.update_training_job(
+            db=db,
+            job_id=job_id,
+            status="failed",
+            error_message=str(e)
         )
-        
-        # Split data
-        X_train, X_test, y_train, y_test = train_test_split(
-            X_processed, y_processed, 
-            test_size=test_size, 
-            random_state=random_state, 
-            stratify=y_processed
-        )
-        
-        results = {}
-        
-        # Train all algorithms
-        for algorithm in AlgorithmName:
-            try:
-                start_time = time.time()
-                result = train_model(
-                    algorithm, X_train, X_test, y_train, y_test, 
-                    target_names, cv_folds, dataset["feature_names"]
-                )
-                training_time = time.time() - start_time
-                
-                # Create model ID
-                model_id = str(uuid.uuid4())
-                
-                # Store model
-                models[model_id] = {
-                    "model": result["model"],
-                    "algorithm": algorithm,
-                    "dataset_id": active_dataset_id,
-                    "training_time": training_time,
-                    "metrics": {
-                        "accuracy": result["accuracy"],
-                        "precision": result["precision"],
-                        "recall": result["recall"],
-                        "f1_score": result["f1_score"],
-                        "auc": result["auc"],
-                        "classification_report": result["classification_report"],
-                        "confusion_matrix": result["confusion_matrix"],
-                        "roc_curve": result["roc_curve"],
-                        "pr_curve": result["pr_curve"],
-                        "feature_importance": result["feature_importance"]
-                    },
-                    "preprocessor": preprocessor,
-                    "target_names": target_names,
-                    "feature_names": dataset["feature_names"]
-                }
-                
-                results[algorithm.value] = {
-                    "id": model_id,
-                    "algorithm": algorithm.value,
-                    "dataset_id": active_dataset_id,
-                    "training_time": training_time,
-                    "accuracy": result["accuracy"],
-                    "precision": result["precision"],
-                    "recall": result["recall"],
-                    "f1_score": result["f1_score"],
-                    "auc": result["auc"],
-                    "confusion_matrix": result["confusion_matrix"],
-                    "feature_importance": result["feature_importance"],
-                    "cv_mean": result["cv_mean"],
-                    "cv_std": result["cv_std"]
-                }
-                
-            except Exception as e:
-                # Continue with other algorithms even if one fails
-                continue
-        
-        return results
-    
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error training all models: {str(e)}")
+    finally:
+        db.close()

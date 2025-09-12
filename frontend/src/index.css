@@ -2,12 +2,186 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Optional: global styles */
-body {
-  @apply bg-gray-100 text-gray-900;
-  font-family: 'Inter', sans-serif;
+/* ML Web App Design System - Professional data science aesthetic */
+
+@layer base {
+  :root {
+    /* Main color palette - Deep tech purple/blue with cyan accents */
+    --background: 0 0% 100%;
+    --foreground: 215 25% 27%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 27%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 27%;
+
+    /* Primary - Deep purple for ML tech aesthetic */
+    --primary: 262 83% 58%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 262 83% 48%;
+
+    /* Secondary - Soft gray for supporting elements */
+    --secondary: 220 13% 91%;
+    --secondary-foreground: 215 25% 27%;
+
+    /* Muted - Light grays for subtle backgrounds */
+    --muted: 220 13% 95%;
+    --muted-foreground: 215 16% 47%;
+
+    /* Accent - Bright cyan for highlights and interactive elements */
+    --accent: 191 91% 36%;
+    --accent-foreground: 0 0% 100%;
+    --accent-hover: 191 91% 26%;
+
+    /* Status colors for ML operations */
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 43 96% 56%;
+    --warning-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders and inputs */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 262 83% 58%;
+
+    /* Chart colors for data visualization */
+    --chart-1: 262 83% 58%;  /* Primary purple */
+    --chart-2: 191 91% 36%;  /* Cyan */
+    --chart-3: 142 71% 45%;  /* Green */
+    --chart-4: 43 96% 56%;   /* Yellow */
+    --chart-5: 0 84% 60%;    /* Red */
+    --chart-6: 280 100% 70%; /* Magenta */
+
+    /* Gradients for hero sections and cards */
+    --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%), hsl(280 100% 70%));
+    --gradient-accent: linear-gradient(135deg, hsl(191 91% 36%), hsl(210 100% 56%));
+    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%), hsl(220 13% 98%));
+
+    /* Shadows and effects */
+    --shadow-sm: 0 1px 2px 0 hsl(220 13% 69% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(220 13% 69% / 0.1), 0 2px 4px -1px hsl(220 13% 69% / 0.06);
+    --shadow-lg: 0 10px 15px -3px hsl(220 13% 69% / 0.1), 0 4px 6px -2px hsl(220 13% 69% / 0.05);
+    --shadow-glow: 0 0 20px hsl(262 83% 58% / 0.3);
+
+    --radius: 0.5rem;
+
+    /* Sidebar styling for ML app navigation */
+    --sidebar-background: 262 83% 58%;  /* Primary purple */
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 280 100% 70%;   /* Lighter purple for active */
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 262 83% 48%;     /* Darker purple for hover */
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 262 83% 48%;
+    --sidebar-ring: 191 91% 36%;       /* Cyan for focus ring */
+
+    /* Animation and transition timing */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dark {
+    /* Dark mode for professional ML environment */
+    --background: 215 28% 17%;
+    --foreground: 0 0% 95%;
+
+    --card: 215 28% 17%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 215 28% 17%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 262 83% 68%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 262 83% 58%;
+
+    --secondary: 215 25% 27%;
+    --secondary-foreground: 0 0% 95%;
+
+    --muted: 215 25% 27%;
+    --muted-foreground: 217 10% 64%;
+
+    --accent: 191 91% 46%;
+    --accent-foreground: 0 0% 100%;
+    --accent-hover: 191 91% 36%;
+
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 43 96% 56%;
+    --warning-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 215 25% 27%;
+    --input: 215 25% 27%;
+    --ring: 262 83% 68%;
+
+    /* Dark mode chart colors - slightly brighter */
+    --chart-1: 262 83% 68%;
+    --chart-2: 191 91% 46%;
+    --chart-3: 142 71% 55%;
+    --chart-4: 43 96% 66%;
+    --chart-5: 0 84% 70%;
+    --chart-6: 280 100% 80%;
+
+    --sidebar-background: 215 28% 17%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 262 83% 68%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 25% 27%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 215 25% 27%;
+    --sidebar-ring: 191 91% 46%;
+  }
 }
 
-h1, h2, h3, h4, h5, h6 {
-  @apply font-semibold text-gray-800;
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  /* Custom utility classes for ML app */
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .gradient-accent {
+    background: var(--gradient-accent);
+  }
+
+  .gradient-subtle {
+    background: var(--gradient-subtle);
+  }
+
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+
+  /* Chart container styling */
+  .chart-container {
+    @apply bg-card border border-border rounded-lg p-4;
+  }
+
+  /* Status indicator utilities */
+  .status-running {
+    @apply bg-warning/10 text-warning border-warning/20;
+  }
+
+  .status-completed {
+    @apply bg-success/10 text-success border-success/20;
+  }
+
+  .status-failed {
+    @apply bg-destructive/10 text-destructive border-destructive/20;
+  }
 }
